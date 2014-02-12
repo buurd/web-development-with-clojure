@@ -6,7 +6,11 @@
      :subprotocol "sqlite", 
      :subname "db.sq3"})
 
-(defn create-guestbook-table[]
+(defn add-user-record [user]
+  (sql/with-connection db
+                       (sql/insert-record :users user)))
+
+(defn create-guestbook-table []
   (sql/with-connection db
            (sql/create-table :guestbook
              [:id "INTEGER PRIMARY KEY AUTOINCREMENT"]
@@ -15,13 +19,24 @@
              [:message "TEXT"])
              (sql/do-commands "CREATE INDEX timestamp_index ON guestbook (timestamp)")))
 
+(defn create-user-table []
+  (sql/with-connection db
+                       (sql/create-table
+                        :users
+                        [:id "varchar(20) PRIMARY KEY"]
+                        [:pass "varchar(100)"])))
+
 (defn read-guests []
-  (sql/with-connection 
-   db
+  (sql/with-connection db
    (sql/with-query-results 
     res 
     ["SELECT * FROM guestbook ORDER BY timestamp DESC"]
     (doall res))))
+
+(defn get-user [id]
+  (sql/with-connection db 
+                       (sql/with-query-results
+                        res ["select * from users where id = ?" id] (first res))))
                        
 (defn save-message [name message]
   (sql/with-connection

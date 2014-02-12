@@ -16,14 +16,6 @@
         (field name)
         [:br]))
 
-(defn registration-page []
-  (layout/common
-   (form-to [:post "/register"]
-            (control text-field :id "screen name")
-            (control password-field :pass "Password")
-            (control password-field :pass1 "Retype password")
-            (submit-button "Create account"))))
-
 (defn handle-registration [id pass pass1]
   (rule (= pass pass1)
         [:pass "password was not retyped correctly"])
@@ -32,6 +24,15 @@
       (do
        (db/add-user-record {:id id :pass (crypt/encrypt pass)})
        (redirect "/login"))))
+
+
+(defn registration-page []
+  (layout/common
+   (form-to [:post "/register"]
+            (control text-field :id "screen name")
+            (control password-field :pass "Password")
+            (control password-field :pass1 "Retype password")
+            (submit-button "Create account"))))
 
 (defn login-page [& [error]] 
   (layout/common
